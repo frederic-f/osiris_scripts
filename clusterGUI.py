@@ -2,6 +2,10 @@
 
 import os
 import wol
+import subprocess
+
+#from subprocess import run
+#call(["ls", "-l"])
 
 from tkinter import *
 
@@ -90,6 +94,12 @@ def startCluster():
     wol.wake_on_lan("horus")
 
 
+def stopNode(node):
+
+    if node == "lenovo":
+        #from subprocess import run
+        subprocess.run(["net", "rpc", "shutdown", "-I", "192.168.1.95", "-U", "pv1%mi666nus$"])
+
 
 if __name__ == '__main__':
 
@@ -118,8 +128,11 @@ if __name__ == '__main__':
     b3 = Button(root, text='Start lenovo', command=(lambda: startNode("lenovo")))
     b3.pack(side=LEFT, padx=5, pady=5)
 
-    b4 = Button(root, text='Start cluster', command=(lambda: startCluster()))
+    b4= Button(root, text='Stop lenovo', command=(lambda: stopNode("lenovo")))
     b4.pack(side=LEFT, padx=5, pady=5)
+
+    b5 = Button(root, text='Start cluster', command=(lambda: startCluster()))
+    b5.pack(side=LEFT, padx=5, pady=5)
 
 
     root.mainloop()
