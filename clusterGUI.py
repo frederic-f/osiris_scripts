@@ -1,8 +1,10 @@
-# https://www.python-course.eu/python_tkinter.php
+#!/usr/bin/python3.5
 
 import os
 import wol
 import subprocess
+from pexpect import pxssh
+import getpass
 
 #from subprocess import run
 #call(["ls", "-l"])
@@ -94,14 +96,57 @@ def startCluster():
     wol.wake_on_lan("horus")
 
 
+def stopCluster():
+
+    stopNode("lenovo")
+
+    stopNode("horus")
+
+
+
+
 def stopNode(node):
+
+    global password
+    if password == "":
+        password = getpass.getpass()
+
 
     if node == "lenovo":
         #from subprocess import run
-        subprocess.run(["net", "rpc", "shutdown", "-I", "192.168.1.95", "-U", "pv1%mi666nus$"])
+
+        subprocess.run(["net", "rpc", "shutdown", "-I", "192.168.1.95", "-U", "pv1%{}".format(password)])
+
+
+
+    if node == "horus":
+        print("stopping horus...")
+        s = pxssh.pxssh()
+
+        host = "horus"
+        user = "pv1"
+        #password = input('Enter password for pv1@horus: ')
+
+
+        if not s.login(host, user, password):
+            print("SSH session failed on login.")
+            print(str(s))
+        else:
+            print("SSH session login successful")
+            print("sending ")
+            s.sendline('sudo shutdown now')
+            s.expect('.*')
+            #print(s.before)
+            #print(s.after)
+            s.sendline(password)
+            s.prompt()  # match the prompt
+            #print(s.before)  # print everything before the prompt.
+            s.logout()
 
 
 if __name__ == '__main__':
+
+    password = ""
 
     # init Tk
     root = Tk()
@@ -133,6 +178,9 @@ if __name__ == '__main__':
 
     b5 = Button(root, text='Start cluster', command=(lambda: startCluster()))
     b5.pack(side=LEFT, padx=5, pady=5)
+
+    b6= Button(root, text='Stop Cluster', command=(lambda: stopCluster()))
+    b6.pack(side=LEFT, padx=5, pady=5)
 
 
     root.mainloop()
